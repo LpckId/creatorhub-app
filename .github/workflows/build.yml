@@ -19,8 +19,15 @@ jobs:
 
     - name: Find Project and Build APK
       run: |
-        PROJECT_DIR=$(find . -maxdepth 3 -name "settings.gradle*" -exec dirname {} \;)
+        # Cari folder yang berisi build.gradle atau build.gradle.kts
+        TARGET_FILE=$(find . -name "build.gradle*" -not -path "*/app/*" | head -n 1)
+        if [ -z "$TARGET_FILE" ]; then
+          TARGET_FILE=$(find . -name "build.gradle*" | head -n 1)
+        fi
+        
+        PROJECT_DIR=$(dirname "$TARGET_FILE")
         echo "Found project directory: $PROJECT_DIR"
+        
         cd "$PROJECT_DIR"
         gradle wrapper
         ./gradlew assembleDebug --stacktrace
